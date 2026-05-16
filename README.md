@@ -1,5 +1,9 @@
 # estrai-articolo
 
+<p align="center">
+  <img src="assets/estrai-articolo.svg" alt="estrai-articolo" width="160">
+</p>
+
 Applicazione locale per estrarre, ripulire e impaginare il testo di articoli accessibili all'utente.
 
 ## Avvio
