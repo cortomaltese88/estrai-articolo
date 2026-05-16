@@ -47,11 +47,12 @@ Name=Estrai Articolo
 GenericName=Estrattore articoli di giornale
 Comment=Applicazione locale per estrarre e impaginare testo da articoli accessibili all'utente
 Exec=/opt/estrai-articolo/avvia.sh
-Icon=$ICON_DIR/hicolor/256x256/apps/estrai-articolo.png
+Icon=/opt/estrai-articolo/assets/estrai-articolo.png
 Terminal=false
 Categories=Utility;Network;
 Keywords=articolo;giornale;notizie;estrai;testo;docx;
 StartupNotify=true
+StartupWMClass=estrai-articolo
 DESKTOP
 
 chmod +x "$DESKTOP_DIR/estrai-articolo.desktop"
