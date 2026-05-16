@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estrai Articolo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;0,7..72,500;1,7..72,300;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── TEMI ── */
+:root {
+  --mono: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+  --serif: 'Literata', Georgia, serif;
+  --sans: -apple-system, 'Segoe UI', Ubuntu, Cantarell, sans-serif;
+  --r: 8px;
+  --font-size: 16px;
+  --transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+
+[data-theme="dark"] {
+  --bg:        #141414;
+  --surface:   #1e1e1e;
+  --surface2:  #272727;
+  --border:    #2e2e2e;
+  --border2:   #444;
+  --accent:    #a8e063;
+  --accent-dk: #7ab830;
+  --text:      #ececec;
+  --text2:     #999;
+  --text3:     #555;
+  --text-body: #d4d4d4;
+  --danger:    #ff6b6b;
+  --btn-label: #111;
+}
+
+[data-theme="light"] {
+  --bg:        #f5f4f0;
+  --surface:   #ffffff;
+  --surface2:  #f0efeb;
+  --border:    #ddd;
+  --border2:   #bbb;
+  --accent:    #4a8c1c;
+  --accent-dk: #3a6e14;
+  --text:      #1a1a1a;
+  --text2:     #555;
+  --text3:     #aaa;
+  --text-body: #2a2a2a;
+  --danger:    #c0392b;
+  --btn-label: #fff;
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+}
+
+/* ── HEADER ── */
+header {
+  flex-shrink: 0;
+  height: 48px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 10px;
+  transition: var(--transition);
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+.logo em { color: var(--text3); font-style: normal; }
+.badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text3);
+}
+.spacer { flex: 1; }
+.header-hint { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+/* ── LAYOUT ── */
+.workspace {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 14px;
+  gap: 14px;
+  overflow-y: auto;
+  transition: var(--transition);
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 5px;
+}
+
+textarea#url {
+  width: 100%;
+  height: 80px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 9px 11px;
+  resize: none;
+  line-height: 1.6;
+  outline: none;
+  transition: border-color 0.2s, var(--transition);
+}
+textarea#url:focus { border-color: var(--accent-dk); }
+textarea#url::placeholder { color: var(--text3); }
+
+.hint { font-size: 11px; color: var(--text3); line-height: 1.5; margin-top: -6px; }
+
+.btn-main {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: var(--btn-label);
+  border: none;
+  border-radius: var(--r);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-main:hover:not(:disabled) { filter: brightness(1.1); }
+.btn-main:active:not(:disabled) { transform: scale(0.98); }
+.btn-main:disabled { background: var(--surface2); color: var(--text3); cursor: not-allowed; }
+
+.spinner {
+  width: 13px; height: 13px;
+  border: 2px solid var(--btn-label);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* META */
+.meta-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  display: none;
+  transition: var(--transition);
+}
+.meta-row {
+  display: flex;
+  gap: 8px;
+  padding: 7px 11px;
+  border-bottom: 1px solid var(--border);
+  align-items: baseline;
+}
+.meta-row:last-child { border-bottom: none; }
+.mk {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+.mv { font-size: 12px; color: var(--text); word-break: break-word; line-height: 1.4; }
+.mv a { color: var(--accent-dk); text-decoration: none; }
+.mv a:hover { text-decoration: underline; }
+
+/* AZIONI */
+.actions { display: flex; flex-direction: column; gap: 7px; margin-top: auto; }
+
+.btn-sec {
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.btn-sec:hover:not(:disabled) {
+  border-color: var(--accent-dk);
+  color: var(--accent);
+  background: rgba(120,180,50,0.05);
+}
+.btn-sec:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── CONTENT ── */
+.content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+  transition: var(--transition);
+  position: relative;
+}
+
+/* TOOLBAR */
+.toolbar {
+  flex-shrink: 0;
+  height: 44px;
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: var(--transition);
+}
+.toolbar-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tb-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+.char-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+}
+
+/* Controlli toolbar */
+.tb-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.tb-btn:hover { border-color: var(--accent-dk); color: var(--accent); }
+.tb-btn.active { border-color: var(--accent-dk); color: var(--accent); background: rgba(120,180,50,0.08); }
+
+.font-controls { display: flex; align-items: center; gap: 4px; }
+.font-size-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  min-width: 32px;
+  text-align: center;
+}
+
+/* SCROLL AREA */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 36px 4%;
+  transition: var(--transition);
+}
+.scroll-area::-webkit-scrollbar { width: 4px; }
+.scroll-area::-webkit-scrollbar-track { background: transparent; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* max-width: none */
+.placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--text3);
+}
+.placeholder-icon {
+  width: 56px; height: 56px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.placeholder p { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; }
+
+/* ERRORE */
+.errore {
+  background: rgba(192,57,43,0.07);
+  border: 1px solid rgba(192,57,43,0.2);
+  border-radius: var(--r);
+  padding: 16px 20px;
+  color: var(--danger);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  display: none;
+}
+
+/* TESTO ARTICOLO */
+.article-wrap { max-width: none; }
+
+#titolo-output {
+  font-family: var(--serif);
+  font-size: calc(var(--font-size) * 1.5);
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text);
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  display: none;
+  letter-spacing: -0.01em;
+}
+
+#testo-output {
+  font-family: var(--serif);
+  font-size: var(--font-size);
+  line-height: 1.85;
+  color: var(--text-body);
+  display: none;
+}
+#testo-output p {
+  margin-bottom: 1.4em;
+}
+#testo-output.justified p {
+  text-align: justify;
+}
+
+/* ── FOOTER ── */
+footer {
+  flex-shrink: 0;
+  height: 32px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 8px;
+  transition: var(--transition);
+}
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text3);
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.dot.ok      { background: var(--accent); }
+.dot.err     { background: var(--danger); }
+.dot.loading { background: #f0a020; animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.status-text { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.footer-right { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--text3); }
+</style>
+</head>
+<body>
+
+
+<!-- SPLASH MATRIX -->
+<div id="splash" style="
+  position:fixed; inset:0; background:#000; z-index:9999;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-family:'Courier New',monospace; overflow:hidden;
+">
+  <canvas id="matrix-canvas" style="position:absolute;inset:0;"></canvas>
+  <div style="position:relative;z-index:2;text-align:center;">
+    <div id="splash-logo" style="
+      font-size:32px; font-weight:700; color:#a8e063; letter-spacing:0.1em;
+      text-shadow:0 0 20px #a8e063, 0 0 40px #7ab830;
+      margin-bottom:16px; opacity:0; transition:opacity 0.5s;
+    ">ESTRAI_ARTICOLO</div>
+    <div id="splash-sub" style="
+      font-size:13px; color:#4a8; letter-spacing:0.2em;
+      opacity:0; transition:opacity 0.5s; margin-bottom:32px;
+    ">v1.4 · Studio GD LEX</div>
+    <div id="splash-bar-wrap" style="
+      width:260px; height:3px; background:#111; border-radius:2px;
+      overflow:hidden; margin:0 auto; opacity:0; transition:opacity 0.3s;
+    ">
+      <div id="splash-bar" style="
+        height:100%; width:0%; background:#a8e063;
+        box-shadow:0 0 8px #a8e063;
+        transition:width 0.05s linear;
+        border-radius:2px;
+      "></div>
+    </div>
+    <div id="splash-status" style="
+      font-size:11px; color:#4a8; letter-spacing:0.15em;
+      margin-top:12px; opacity:0; transition:opacity 0.3s; height:16px;
+    "></div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">Estrai<em>_</em>Articolo</div>
+  <div class="badge">v1.4</div>
+  <div class="spacer"></div>
+  <div class="header-hint">Ctrl+Enter per estrarre</div>
+</header>
+
+<div class="workspace">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div>
+      <div class="label">URL Articolo</div>
+      <textarea id="url" placeholder="https://www.ilgazzettino.it/&#10;https://www.corriere.it/&#10;https://www.repubblica.it/"></textarea>
+    </div>
+    <div class="hint">Pensato per estrarre e ripulire testo da pagine articolo normalmente accessibili nel browser.</div>
+    <button class="btn-main" id="btn-estrai" onclick="estrai()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-label">↓  Estrai</span>
+    </button>
+    <div class="meta-box" id="meta-box">
+      <div class="meta-row"><div class="mk">Testata</div><div class="mv" id="m-testata">—</div></div>
+      <div class="meta-row"><div class="mk">Data</div><div class="mv" id="m-data">—</div></div>
+      <div class="meta-row"><div class="mk">Autore</div><div class="mv" id="m-autore">—</div></div>
+      <div class="meta-row"><div class="mk">URL</div><div class="mv" id="m-url">—</div></div>
+    </div>
+    <div class="actions">
+      <button class="btn-sec" id="btn-copia" disabled onclick="copiaTesto()">⎘ &nbsp;Copia testo</button>
+      <button class="btn-sec" id="btn-salva" disabled onclick="salvaTxt()">↓ &nbsp;Salva come .txt</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="toolbar">
+      <div class="toolbar-label">Testo estratto</div>
+      <div class="tb-sep"></div>
+
+      <!-- Font size -->
+      <div class="font-controls">
+        <button class="tb-btn" onclick="cambiaFont(-1)" title="Riduci carattere">A−</button>
+        <div class="font-size-label" id="font-label">16</div>
+        <button class="tb-btn" onclick="cambiaFont(+1)" title="Aumenta carattere">A+</button>
+      </div>
+
+      <div class="tb-sep"></div>
+
+      <!-- Giustificato -->
+      <button class="tb-btn" id="btn-just" onclick="toggleJustify()" title="Testo giustificato">⇔ Giustifica</button>
+
+      <div class="tb-sep"></div>
+
+      <!-- Tema -->
+      <button class="tb-btn" id="btn-theme" onclick="toggleTheme()" title="Cambia tema">☀ Chiaro</button>
+
+      <div class="tb-sep"></div>
+
+      <!-- Stampa -->
+      <button class="tb-btn" id="btn-print" onclick="stampaTesto()" title="Stampa articolo">⎙ Stampa</button>
+
+      <!-- Esporta docx -->
+      <button class="tb-btn" id="btn-docx" onclick="scaricaDocx()" title="Esporta come Word" disabled>↓ .docx</button>
+
+      <div class="char-count" id="char-count"></div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" style="
+      display:none; position:absolute; inset:0; z-index:10;
+      background:rgba(0,0,0,0.6); backdrop-filter:blur(3px);
+      align-items:center; justify-content:center; flex-direction:column; gap:16px;
+      font-family:'Courier New',monospace;
+    ">
+      <canvas id="mini-matrix" style="position:absolute;inset:0;opacity:0.3;"></canvas>
+      <div style="position:relative;z-index:2;text-align:center;">
+        <div id="loading-spinner-big" style="
+          width:48px;height:48px;border:3px solid #2a2a2a;
+          border-top-color:#a8e063;border-radius:50%;
+          animation:spin 0.8s linear infinite;margin:0 auto 12px;
+        "></div>
+        <div style="font-size:12px;color:#a8e063;letter-spacing:0.15em;">ESTRAZIONE IN CORSO</div>
+      </div>
+    </div>
+    <div class="scroll-area" id="scroll-area">
+      <div class="placeholder" id="placeholder">
+        <div class="placeholder-icon">↓</div>
+        <p>Incolla un URL e premi Estrai</p>
+      </div>
+      <div class="errore" id="errore"></div>
+      <div class="article-wrap" id="article-wrap" style="display:none">
+        <div id="titolo-output"></div>
+        <div id="testo-output"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="dot" id="dot"></div>
+  <div class="status-text" id="status-text">In attesa</div>
+  <div class="footer-right">localhost:7432</div>
+</footer>
+
+<script>
+let testoCorrente='', titoloCorrente='', dataCorrente='', testatoCorrente='';
+let fontSize = parseInt(localStorage.getItem('ea-fontsize') || '16');
+let justified = localStorage.getItem('ea-justify') === '1';
+let theme = localStorage.getItem('ea-theme') || 'dark';
+
+// Applica stato iniziale
+applyFontSize();
+applyJustify();
+applyTheme();
+
+function applyFontSize() {
+  document.documentElement.style.setProperty('--font-size', fontSize + 'px');
+  document.getElementById('font-label').textContent = fontSize;
+  localStorage.setItem('ea-fontsize', fontSize);
+}
+
+function cambiaFont(delta) {
+  fontSize = Math.min(26, Math.max(12, fontSize + delta));
+  applyFontSize();
+}
+
+function applyJustify() {
+  const tx = document.getElementById('testo-output');
+  const btn = document.getElementById('btn-just');
+  if (justified) {
+    tx.classList.add('justified');
+    btn.classList.add('active');
+    btn.textContent = '⇔ Giustificato';
+  } else {
+    tx.classList.remove('justified');
+    btn.classList.remove('active');
+    btn.textContent = '⇔ Giustifica';
+  }
+  localStorage.setItem('ea-justify', justified ? '1' : '0');
+}
+
+function toggleJustify() {
+  justified = !justified;
+  applyJustify();
+}
+
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('btn-theme');
+  btn.textContent = theme === 'dark' ? '☀ Chiaro' : '☾ Scuro';
+  localStorage.setItem('ea-theme', theme);
+}
+
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  applyTheme();
+}
+
+function setStatus(s, m) {
+  document.getElementById('dot').className = 'dot ' + s;
+  document.getElementById('status-text').textContent = m;
+}
+
+async function estrai() {
+  const url = document.getElementById('url').value.trim();
+  if (!url) return;
+
+  const btn   = document.getElementById('btn-estrai');
+  const spin  = document.getElementById('spinner');
+  const label = document.getElementById('btn-label');
+
+  btn.disabled = true;
+  spin.style.display = 'block';
+  label.textContent = 'Estrazione in corso…';
+  setStatus('loading', 'Download in corso…');
+  // Mostra overlay loading con mini matrix
+  const ov = document.getElementById('loading-overlay');
+  ov.style.display = 'flex';
+  const mc = document.getElementById('mini-matrix');
+  mc.width = ov.offsetWidth; mc.height = ov.offsetHeight;
+  const mctx = mc.getContext('2d');
+  const mcols = Math.floor(mc.width/14);
+  const mdrops = Array(mcols).fill(1);
+  const mchars = 'アイウエオカキクケコ0123456789ABCDEF';
+  const mInt = setInterval(()=>{
+    mctx.fillStyle='rgba(0,0,0,0.05)'; mctx.fillRect(0,0,mc.width,mc.height);
+    mctx.font='14px monospace';
+    for(let i=0;i<mdrops.length;i++){
+      mctx.fillStyle=Math.random()>.9?'#fff':'#a8e063';
+      mctx.fillText(mchars[Math.floor(Math.random()*mchars.length)],i*14,mdrops[i]*14);
+      if(mdrops[i]*14>mc.height&&Math.random()>.975)mdrops[i]=0;
+      mdrops[i]++;
+    }
+  },40);
+  ov._mInt = mInt;
+
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('errore').style.display = 'none';
+  document.getElementById('article-wrap').style.display = 'none';
+  document.getElementById('titolo-output').style.display = 'none';
+  document.getElementById('testo-output').style.display = 'none';
+  document.getElementById('meta-box').style.display = 'none';
+  document.getElementById('btn-copia').disabled = true;
+  document.getElementById('btn-salva').disabled = true;
+  document.getElementById('btn-docx').disabled = true;
+  document.getElementById('char-count').textContent = '';
+
+  try {
+    const res  = await fetch('/estrai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json();
+
+    if (data.errore) {
+      const el = document.getElementById('errore');
+      el.textContent = '✕  ' + data.errore;
+      el.style.display = 'block';
+      setStatus('err', data.errore);
+    } else {
+      testoCorrente   = data.testo;
+      titoloCorrente  = data.titolo;
+      dataCorrente    = data.data;
+      testatoCorrente = data.testata;
+
+      // Titolo
+      const to = document.getElementById('titolo-output');
+      to.textContent = data.titolo;
+      to.style.display = 'block';
+
+      // Testo → paragrafi
+      const tx = document.getElementById('testo-output');
+      let paragrafi = data.testo.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
+      if (paragrafi.length <= 1) {
+        paragrafi = data.testo
+          .replace(/([.!?])\s{2,}([A-ZAÀÈÉÌÒÙ])/g, '$1\n$2')
+          .split('\n').map(p => p.trim()).filter(p => p.length > 0);
+      }
+      tx.innerHTML = paragrafi
+        .map(p => '<p>' + p.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>')
+        .join('');
+      tx.style.display = 'block';
+      applyJustify();
+
+      document.getElementById('article-wrap').style.display = 'block';
+
+      // Meta
+      document.getElementById('m-testata').textContent = data.testata || '—';
+      document.getElementById('m-data').textContent    = data.data    || '—';
+      document.getElementById('m-autore').textContent  = data.autore  || '—';
+      const urlEl = document.getElementById('m-url');
+      if (data.url) {
+        const s = data.url.replace(/^https?:\/\//, '').substring(0, 42);
+        urlEl.innerHTML = `<a href="${data.url}" target="_blank">${s}…</a>`;
+      } else { urlEl.textContent = '—'; }
+      document.getElementById('meta-box').style.display = 'block';
+
+      const parole = data.testo.trim().split(/\s+/).length;
+      document.getElementById('char-count').textContent =
+        data.testo.length.toLocaleString('it') + ' car. · ' + parole.toLocaleString('it') + ' parole';
+
+      document.getElementById('btn-copia').disabled = false;
+      document.getElementById('btn-salva').disabled = false;
+      document.getElementById('btn-docx').disabled = false;
+      setStatus('ok', 'Estratto · ' + (data.testata || '') + ' · ' + (data.data || ''));
+      document.getElementById('scroll-area').scrollTop = 0;
+    }
+  } catch(e) {
+    const el = document.getElementById('errore');
+    el.textContent = '✕  Server non raggiungibile. Assicurati che server.py sia in esecuzione.';
+    el.style.display = 'block';
+    setStatus('err', 'Server non raggiungibile');
+  }
+
+  btn.disabled = false;
+  spin.style.display = 'none';
+  label.textContent = '↓  Estrai';
+  // Nascondi overlay loading
+  clearInterval(document.getElementById('loading-overlay')._mInt);
+  document.getElementById('loading-overlay').style.display = 'none';
+}
+
+function copiaTesto() {
+  navigator.clipboard.writeText(titoloCorrente + '\n\n' + testoCorrente).then(() => {
+    const btn = document.getElementById('btn-copia');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ &nbsp;Copiato!';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  });
+}
+
+function salvaTxt() {
+  if (!testoCorrente) return;
+  const slug = titoloCorrente.substring(0, 40).replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+  const nome = (testatoCorrente || 'articolo').toLowerCase().replace(/\s/g, '_')
+    + '_' + (dataCorrente || 'nd') + '_' + slug + '.txt';
+  const body = [
+    'TESTATA : ' + testatoCorrente,
+    'DATA    : ' + dataCorrente,
+    'URL     : ' + document.getElementById('url').value.trim(),
+    '', titoloCorrente, '', '---', '', testoCorrente
+  ].join('\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([body], { type: 'text/plain;charset=utf-8' })),
+    download: nome
+  });
+  a.click();
+}
+
+
+// ── SPLASH MATRIX ──
+(function(){
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+  const splash = document.getElementById('splash');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋';
+  const fontSize = 14;
+  let cols = Math.floor(canvas.width / fontSize);
+  let drops = Array(cols).fill(1);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = fontSize + 'px monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const bright = Math.random() > 0.95;
+      ctx.fillStyle = bright ? '#fff' : (Math.random() > 0.5 ? '#a8e063' : '#3a7a10');
+      ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  const matrixInterval = setInterval(draw, 40);
+
+  // Sequenza animazione
+  const logo   = document.getElementById('splash-logo');
+  const sub    = document.getElementById('splash-sub');
+  const barW   = document.getElementById('splash-bar-wrap');
+  const bar    = document.getElementById('splash-bar');
+  const status = document.getElementById('splash-status');
+
+  const stati = [
+    'Inizializzazione server…',
+    'Caricamento moduli…',
+    'Connessione porta 7432…',
+    'Pronto.',
+  ];
+
+  setTimeout(() => { logo.style.opacity = '1'; }, 200);
+  setTimeout(() => { sub.style.opacity = '1'; }, 600);
+  setTimeout(() => { barW.style.opacity = '1'; status.style.opacity = '1'; }, 900);
+
+  let pct = 0;
+  let si  = 0;
+  const barInterval = setInterval(() => {
+    pct += 2;
+    bar.style.width = pct + '%';
+    if (pct % 25 === 0 && si < stati.length) {
+      status.textContent = stati[si++];
+    }
+    if (pct >= 100) clearInterval(barInterval);
+  }, 30);
+
+  setTimeout(() => {
+    clearInterval(matrixInterval);
+    splash.style.transition = 'opacity 0.6s';
+    splash.style.opacity = '0';
+    setTimeout(() => { splash.remove(); }, 650);
+  }, 3200);
+})();
+
+document.getElementById('url').addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'Enter') estrai();
+});
+
+function stampaTesto() {
+  if (!titoloCorrente) return;
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html lang="it"><head>
+    <meta charset="UTF-8">
+    <title>${titoloCorrente}</title>
+    <style>
+      body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.8;
+             max-width: 800px; margin: 40px auto; color: #111; }
+      h1 { font-size: 18pt; margin-bottom: 24px; line-height: 1.3; }
+      p { margin-bottom: 12px; text-align: justify; }
+      .meta { font-size: 10pt; color: #666; border-bottom: 1px solid #ccc;
+              padding-bottom: 12px; margin-bottom: 24px; }
+    </style>
+  </head><body>
+    <div class="meta">
+      <strong>${document.getElementById('m-testata').textContent}</strong> &nbsp;·&nbsp;
+      ${document.getElementById('m-data').textContent} &nbsp;·&nbsp;
+      ${document.getElementById('m-autore').textContent}
+    </div>
+    <h1>${titoloCorrente}</h1>
+    ${document.getElementById('testo-output').innerHTML}
+  </body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 400);
+}
+
+async function scaricaDocx() {
+  const btn = document.getElementById('btn-docx');
+  const orig = btn.textContent;
+  btn.textContent = '⏳ …';
+  btn.disabled = true;
+  try {
+    const payload = {
+      titolo:  titoloCorrente,
+      testo:   testoCorrente,
+      testata: testatoCorrente,
+      data:    dataCorrente,
+      autore:  document.getElementById('m-autore').textContent,
+      url:     document.getElementById('url').value.trim()
+    };
+    const res = await fetch('/docx', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Errore server');
+    const blob = await res.blob();
+    const cd   = res.headers.get('Content-Disposition') || '';
+    const m    = cd.match(/filename="([^"]+)"/);
+    const fname = m ? m[1] : 'articolo.docx';
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob), download: fname
+    });
+    a.click();
+    btn.textContent = '✓ Scaricato';
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+  } catch(e) {
+    btn.textContent = '✕ Errore';
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+  }
+}
+</script>
+</body>
+</html>

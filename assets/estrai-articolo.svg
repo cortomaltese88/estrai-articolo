@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <rect width="256" height="256" rx="48" fill="#0f0f0f"/>
+  <rect x="20" y="20" width="216" height="216" rx="36" fill="#1a1a1a"/>
+  <!-- bordo accent -->
+  <rect x="20" y="20" width="216" height="216" rx="36" fill="none" stroke="#c8f060" stroke-width="3" opacity="0.5"/>
+  <!-- freccia download stilizzata -->
+  <line x1="128" y1="72" x2="128" y2="156" stroke="#c8f060" stroke-width="10" stroke-linecap="round"/>
+  <polyline points="96,130 128,164 160,130" fill="none" stroke="#c8f060" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- linea base -->
+  <line x1="80" y1="186" x2="176" y2="186" stroke="#c8f060" stroke-width="8" stroke-linecap="round" opacity="0.7"/>
+  <!-- puntini decorativi in basso -->
+  <circle cx="80" cy="210" r="4" fill="#555"/>
+  <circle cx="96" cy="210" r="4" fill="#555"/>
+  <circle cx="112" cy="210" r="4" fill="#555"/>
+</svg>
