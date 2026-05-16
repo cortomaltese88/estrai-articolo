@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "estrai-articolo"
+version = "0.1.0"
+description = "Applicazione locale per estrarre, ripulire e impaginare il testo di articoli accessibili all'utente."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["python-docx"]
+license = { file = "LICENSE" }
+
+[project.urls]
+Homepage = "https://github.com/cortomaltese88/estrai-articolo"
+Repository = "https://github.com/cortomaltese88/estrai-articolo"

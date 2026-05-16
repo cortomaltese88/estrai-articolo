@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Compile server.py
+        run: python3 -m py_compile server.py
+
+      - name: Check avvia.sh syntax
+        run: bash -n avvia.sh
+
+      - name: Check installa.sh syntax
+        run: bash -n installa.sh
+
+      - name: Check forbidden terms outside LICENSE
+        run: |
+          pattern="freepay""wall|pay""wall|by""pass|agg""ir|el""ud|el""us|circum""vent|avoid pay""wall"
+          if grep -RInEi \
+            --exclude-dir=.git \
+            --exclude-dir=__pycache__ \
+            --exclude="LICENSE" \
+            --exclude="*.png" \
+            --exclude="*.svg" \
+            "$pattern" \
+            .; then
+            echo "Trovati termini non ammessi fuori da LICENSE"
+            exit 1
+          fi
