@@ -14,6 +14,20 @@ Applicazione locale per estrarre, ripulire e impaginare il testo di articoli acc
 
 L'interfaccia e' disponibile su `http://localhost:7432`.
 
+Per installazione locale integrata:
+
+```bash
+./installa.sh
+```
+
+Per sviluppo o avvio manuale:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
 ## Dipendenze
 
 - Python 3
